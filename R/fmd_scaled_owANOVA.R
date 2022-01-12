@@ -13,19 +13,25 @@
 #' Simulated data with peak and baseline artery diameters from 12 participants:
 #'
 #' EXAMPLE 1: Allometric scaling not required
-#' dat <- tibble::tibble(participant = c("P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10", "P11", "P12"), dpeak = c(4.1, 3.2, 6.5, 5.9, 4.3, 2.1, 4.0, 6.3, 3.3, 4.9, 5.2, 7.1), dbase = c(4.0, 2.9, 6.0, 5.7, 4.1, 2.0, 3.7, 6.2, 3.2, 4.3, 5.1, 6.9), group = as.factor(c("NS", "NS", "NS", "NS", "SD", "SD", "SD", "SD", "SR", "SR", "SR", "SR")))
+#' dat <- data.frame(participant = c("P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10", "P11", "P12"), dpeak = c(4.1, 3.2, 6.5, 5.9, 4.3, 2.1, 4.0, 6.3, 3.3, 4.9, 5.2, 7.1), dbase = c(4.0, 2.9, 6.0, 5.7, 4.1, 2.0, 3.7, 6.2, 3.2, 4.3, 5.1, 6.9), group = as.factor(c("NS", "NS", "NS", "NS", "SD", "SD", "SD", "SD", "SR", "SR", "SR", "SR")))
 #' fmd_scaled_owANOVA(dat)
 #'
 #' EXAMPLE 2: Allometric scaling required and calculated:
-#' dat <- tibble::tibble(dpeak = rnorm(30, 4.27, 1.12), dbase = rnorm(30, 4.16, 1.21)*0.8, group = as.factor(c(rep("NS", 10), rep("SD", 10), rep("SR", 10))))
+#' dat <- data.frame(dpeak = rnorm(30, 4.27, 1.12), dbase = rnorm(30, 4.16, 1.21)*0.8, group = as.factor(c(rep("NS", 10), rep("SD", 10), rep("SR", 10))))
 #' fmd_scaled_owANOVA(dat)
+#'
+#' @import dplyr
+#' @import lmerTest
+#' @import emmeans
+#' @import car
+#' @import ggplot2
 
 fmd_scaled_owANOVA <- function(dat){
   # Take log of data:
   log_dbase <- log(dat[["dbase"]])
   log_dpeak <- log(dat[["dpeak"]])
   difflogs <- log_dpeak - log_dbase
-  df <- tibble::tibble(log_dbase = log_dbase, log_dpeak = log_dpeak, difflogs = difflogs)
+  df <- data.frame(log_dbase = log_dbase, log_dpeak = log_dpeak, difflogs = difflogs)
   newdat <- cbind(dat, df)
 
   fit <- lm(log_dpeak ~ log_dbase, data = df)
@@ -34,25 +40,36 @@ fmd_scaled_owANOVA <- function(dat){
     # Assign to univariate general linear model
     fit2 <- lm(difflogs ~ group + log_dbase, data = newdat)
     lmcoef.aov <- car::Anova(fit2, type = "III", ddf = "Kenward-Roger")
-    fit3 <- emmeans::emmeans(fit2, "group")
+    fit3 <- emmeans(fit2, "group")
     emmeans.cont.p <- pairs(fit3, adjust = "tukey") #pval
     emmeans.cont.ci <- summary(emmeans.cont.p, infer = c(TRUE, FALSE)) #ci
 
     # Table for backtransformed estimated marginal means and measure of error:
     tf.em.means <- as.data.frame(c("group" = (as.data.frame(fit3)[1]), (exp((summary(fit3)[2]))-1)*100, (exp((summary(fit3)[3]))-1)*100, (exp((summary(fit3)[5]))-1)*100, (exp((summary(fit3)[6]))-1)*100))
+
     tf.em.means <- tf.em.means %>%
-      rename("Group" = group.group, "EstMarginalMeans" = emmean, "SE" = SE, "LL" = lower.CL, "UL" = upper.CL) #rename columns
+      rename("Group" = group.group,
+             "EstMarginalMeans" = emmean,
+             "SE" = SE,
+             "LL" = lower.CL,
+             "UL" = upper.CL) #rename columns
 
     # Table for contrasts
-    tf.stats <- data.frame("contrast" = (as.data.frame(emmeans.cont.p)[,1]), "std.error" = ((exp(as.data.frame(emmeans.cont.p)[,3])-1)*100), "df" = (as.data.frame(emmeans.cont.p)[,4]), "t.stat" = (as.data.frame(emmeans.cont.p)[,5]), "p-value" = (as.data.frame(emmeans.cont.p)[,6]), "lower.95CI" = ((exp(as.data.frame(emmeans.cont.ci)[,5])-1)*100), "upper.95CI" = ((exp(as.data.frame(emmeans.cont.ci)[,6])-1)*100))
+    tf.stats <- data.frame("contrast" = (as.data.frame(emmeans.cont.p)[,1]),
+                           "std.error" = ((exp(as.data.frame(emmeans.cont.p)[,3])-1)*100),
+                           "df" = (as.data.frame(emmeans.cont.p)[,4]),
+                           "t.stat" = (as.data.frame(emmeans.cont.p)[,5]),
+                           "p-value" = (as.data.frame(emmeans.cont.p)[,6]),
+                           "lower.95CI" = ((exp(as.data.frame(emmeans.cont.ci)[,5])-1)*100),
+                           "upper.95CI" = ((exp(as.data.frame(emmeans.cont.ci)[,6])-1)*100))
 
-    plot <- ggplot2::ggplot(tf.em.means, ggplot2::aes(x = Group, y=EstMarginalMeans, group = 1)) +
-      ggplot2::geom_errorbar(aes(ymin = LL, ymax = UL), width = 0, size =1.5, colour = "dodgerblue1", alpha = 0.5) +
-      ggplot2::geom_point(size = 2) +
-      ggplot2::ylab("Scaled FMD") +
-      ggplot2::xlab("Group") +
-      ggplot2::theme_bw() +
-      ggplot2::theme(axis.text.x = element_text(face = "bold", size = 12),
+    plot <- ggplot(tf.em.means, aes(x = Group, y=EstMarginalMeans, group = 1)) +
+      geom_errorbar(aes(ymin = LL, ymax = UL), width = 0, size =1.5, colour = "dodgerblue1", alpha = 0.5) +
+      geom_point(size = 2) +
+      ylab("Scaled FMD") +
+      xlab("Group") +
+      theme_bw() +
+      theme(axis.text.x = element_text(face = "bold", size = 12),
                      axis.title.x = element_text(face = "bold", size = 16),
                      axis.title.y = element_text(face = "bold", size = 16),
                      axis.text.y = element_text(face = "bold", size = 12))

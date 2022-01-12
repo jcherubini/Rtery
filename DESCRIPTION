@@ -1,0 +1,10 @@
+Package: Rtery
+Type: Package
+Title: A suite of tools for endothelial function analysis
+Version: 0.1.0
+Author: Joshua Cherubini
+Maintainer: Joshua Cherubini <jcherubini29@gmail.com>
+Description: This package supports the analysis of endothelial function by providing tools to calculate allometrically scaled flow-mediated dilation. 
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true

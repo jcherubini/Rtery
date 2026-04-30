@@ -14,4 +14,9 @@ Imports:
     emmeans,
     geepack,
     ggplot2,
-    lmerTest
+    lmerTest,
+    rlang (>= 1.2.0),
+    vctrs (>= 0.7.1),
+    glue,
+    magrittr,
+    purrr

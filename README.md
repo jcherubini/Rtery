@@ -39,7 +39,7 @@ The %FMD is a simple and canonical method to estimate endothelial function. Howe
 Allometric scaling may be technically challenging to perform and can vary across study designs and statistical software, and it can be difficult to ascertain when allometric treatments should be applied. `Rtery` offers a quick and convenient method to first, test for the necessity of allometric scaling and, if necessary, calculate allometrically-scaled FMD responses for a variety of different study designs using functions from the `lmerTest` (Kuznetsova et al. 2020) and `emmeans` (Lenth, 2022) packages (Figure 2).
 
 <p align="center">
-  <img src="https://github.com/jcherubini/Rtery/blob/main/Figures/RteryProcess.png" width="350" height="175" alt="Alternative text caption here">
+  <img src="Figures/RteryProcess.png" width="350" height="175" alt="Alternative text caption here">
   </p>
 <p align="center">
   <em>Figure 2: Rtery uses a three-step computational process for allometric treatment of FMD data.</em>

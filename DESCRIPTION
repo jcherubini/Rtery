@@ -8,3 +8,10 @@ Description: This package supports the analysis of endothelial function by provi
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+Imports:
+    car,
+    dplyr,
+    emmeans,
+    geepack,
+    ggplot2,
+    lmerTest

@@ -14,7 +14,21 @@
 
 You can install `Rtery` into your local R environment using the following code:
 
-    devtools::install_github("jcherubini/Rtery", dependencies = TRUE)
+    install.packages("pak")
+    pak::pak(c(
+      "rlang",
+      "vctrs",
+      "glue",
+      "magrittr",
+      "purrr",
+      "car",
+      "dplyr",
+      "emmeans",
+      "geepack",
+      "ggplot2",
+      "lmerTest",
+      "jcherubini/Rtery"
+    ))
 
 ## **Functionality and capabilities**
 

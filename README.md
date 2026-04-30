@@ -14,7 +14,7 @@
 
 You can install `Rtery` into your local R environment using the following code:
 
-    devtools::install_github("jcherubini/Rtery")
+    devtools::install_github("jcherubini/Rtery", dependencies = TRUE)
 
 ## **Functionality and capabilities**
 

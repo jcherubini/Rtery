@@ -1,6 +1,6 @@
 # Rtery: An R package for endothelial function analysis
 <!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+![Lifecycle: experimental](Figures/RteryLogo.png "Logo")  
 <!-- badges: end -->
 
 `Rtery` is an R package that hosts several functions to support statistical analyses related to arterial structure and function. `Rtery` was created with a user-friendly objective and specifically designed for users whose native programming language may not be similar to R syntax. However, even those familiar with R syntax may find convenience in some of the functions offered by `Rtery`!
